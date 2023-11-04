@@ -6,6 +6,7 @@ namespace MovieApi;
 public class MovieService : IMovieService
 {
     private const string PosterImageUrlPrefix = "https://image.tmdb.org/t/p/w780";
+    private const string ProfileImageUrlPrefix = "https://image.tmdb.org/t/p/w185";
     private const int MaxDiscoverMoviePageNumber = 75;
 
     private readonly RestClient _client;
@@ -20,14 +21,6 @@ public class MovieService : IMovieService
         _client = new RestClient(options);
         _client.AddDefaultHeader("Accept", "application/json");
         _client.AddDefaultHeader("Authorization", $"Bearer {tmdbSettings.ApiReadAccessKey}");
-    }
-
-    public async Task<string> TestEndpoint()
-    {
-        var request = new RestRequest("authentication");
-        var response = await _client.GetAsync(request);
-
-        return response.Content ?? "{}";
     }
 
     public async Task<MovieDto> GetMovieById(int id)
@@ -46,8 +39,39 @@ public class MovieService : IMovieService
             Id = response.Id,
             Title = response.Title,
             ReleaseYear = response.ReleaseDate.Year,
-            PosterImageUrl = PosterImageUrlPrefix + response.PosterPath,
+            PosterImageUrl = string.IsNullOrEmpty(response.PosterPath)
+                ? string.Empty
+                : PosterImageUrlPrefix + response.PosterPath,
         };
+    }
+
+    public async Task<IEnumerable<ActorDto>> SearchActor(string query)
+    {
+        var request = new RestRequest("search/person");
+        request.AddQueryParameter("query", query);
+        request.AddQueryParameter("include_adult", true);
+        request.AddQueryParameter("language", "en-US");
+        request.AddQueryParameter("page", 1);
+
+        var response = await _client.GetAsync<SearchPersonResponse>(request);
+        if (response is null)
+        {
+            throw new InvalidOperationException("Search person request failed");
+        }
+
+        return response.Results
+            .Where(person => person.KnownForDepartment == "Acting")
+            .Select(
+                person =>
+                    new ActorDto
+                    {
+                        Id = person.Id,
+                        Name = person.Name,
+                        ProfileImageUrl = string.IsNullOrEmpty(person.ProfilePath)
+                            ? string.Empty
+                            : ProfileImageUrlPrefix + person.ProfilePath,
+                    }
+            );
     }
 
     public async Task<StartAndEndMovieDto> ChooseStartAndEndMovie()
@@ -62,13 +86,13 @@ public class MovieService : IMovieService
     private async Task<int> ChooseRandomMovie()
     {
         var request = new RestRequest("discover/movie");
-        request.AddQueryParameter("include_adult", "true");
-        request.AddQueryParameter("include_video", "false");
+        request.AddQueryParameter("include_adult", true);
+        request.AddQueryParameter("include_video", false);
         request.AddQueryParameter("language", "en-US");
         request.AddQueryParameter("sort_by", "vote_count.desc");
 
         var page = 1 + Random.Shared.Next(0, MaxDiscoverMoviePageNumber);
-        request.AddQueryParameter("page", page.ToString());
+        request.AddQueryParameter("page", page);
 
         var response = await _client.GetAsync<DiscoverMovieResponse>(request);
         if (response is null)
