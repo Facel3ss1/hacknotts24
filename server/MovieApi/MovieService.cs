@@ -1,12 +1,11 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
-using MovieApi.Data;
+﻿using MovieApi.Data;
 using RestSharp;
 
 namespace MovieApi;
 
 public class MovieService : IMovieService
 {
+    private const string PosterImageUrlPrefix = "https://image.tmdb.org/t/p/w780";
     private const int MaxDiscoverMoviePageNumber = 75;
 
     private readonly RestClient _client;
@@ -19,7 +18,7 @@ public class MovieService : IMovieService
 
         var options = new RestClientOptions("https://api.themoviedb.org/3/");
         _client = new RestClient(options);
-        _client.AddDefaultHeader("accept", "application/json");
+        _client.AddDefaultHeader("Accept", "application/json");
         _client.AddDefaultHeader("Authorization", $"Bearer {tmdbSettings.ApiReadAccessKey}");
     }
 
@@ -29,6 +28,26 @@ public class MovieService : IMovieService
         var response = await _client.GetAsync(request);
 
         return response.Content ?? "{}";
+    }
+
+    public async Task<MovieDto> GetMovieById(int id)
+    {
+        var request = new RestRequest("movie/{movie_id}");
+        request.AddUrlSegment("movie_id", id);
+
+        var response = await _client.GetAsync<MovieResponse>(request);
+        if (response is null)
+        {
+            throw new InvalidOperationException("Get movie request failed");
+        }
+
+        return new MovieDto
+        {
+            Id = response.Id,
+            Title = response.Title,
+            ReleaseYear = response.ReleaseDate.Year,
+            PosterImageUrl = PosterImageUrlPrefix + response.PosterPath,
+        };
     }
 
     public async Task<StartAndEndMovieDto> ChooseStartAndEndMovie()

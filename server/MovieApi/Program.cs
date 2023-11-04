@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSignalR();
 
-builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddSingleton<IMovieService, MovieService>();
 
 var app = builder.Build();
 

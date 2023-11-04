@@ -15,9 +15,15 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet("Test")]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> TestEndpoint()
     {
         return Content(await _movieService.TestEndpoint(), "application/json");
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<MovieDto>> Get(int id)
+    {
+        return await _movieService.GetMovieById(id);
     }
 
     [HttpGet("ChooseStartAndEnd")]
