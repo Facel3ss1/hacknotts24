@@ -21,6 +21,12 @@ public class MovieController : ControllerBase
     }
 
     [HttpGet("[action]")]
+    public async Task<IEnumerable<MovieDto>> Search([FromQuery] string query)
+    {
+        return await _movieService.SearchMovie(query);
+    }
+
+    [HttpGet("[action]")]
     public async Task<ActionResult<StartAndEndMovieDto>> ChooseStartAndEnd()
     {
         return await _movieService.ChooseStartAndEndMovie();

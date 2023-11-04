@@ -45,6 +45,34 @@ public class MovieService : IMovieService
         };
     }
 
+    public async Task<IEnumerable<MovieDto>> SearchMovie(string query)
+    {
+        var request = new RestRequest("search/movie");
+        request.AddQueryParameter("query", query);
+        request.AddQueryParameter("include_adult", true);
+        request.AddQueryParameter("language", "en-US");
+        request.AddQueryParameter("page", 1);
+
+        var response = await _client.GetAsync<SearchMovieResponse>(request);
+        if (response is null)
+        {
+            throw new InvalidOperationException("Search movie request failed");
+        }
+
+        return response.Results.Select(
+            movie =>
+                new MovieDto
+                {
+                    Id = movie.Id,
+                    Title = movie.Title,
+                    ReleaseYear = movie.ReleaseDate.Year,
+                    PosterImageUrl = string.IsNullOrEmpty(movie.PosterPath)
+                        ? string.Empty
+                        : PosterImageUrlPrefix + movie.PosterPath,
+                }
+        );
+    }
+
     public async Task<IEnumerable<ActorDto>> SearchActor(string query)
     {
         var request = new RestRequest("search/person");
