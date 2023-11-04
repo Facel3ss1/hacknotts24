@@ -23,7 +23,7 @@ public class MovieService : IMovieService
         _client.AddDefaultHeader("Authorization", $"Bearer {tmdbSettings.ApiReadAccessKey}");
     }
 
-    public async Task<MovieDto> GetMovieById(int id)
+    public async Task<MovieDto?> GetMovieById(int id)
     {
         var request = new RestRequest("movie/{movie_id}");
         request.AddUrlSegment("movie_id", id);
@@ -31,7 +31,7 @@ public class MovieService : IMovieService
         var response = await _client.GetAsync<MovieResponse>(request);
         if (response is null)
         {
-            throw new InvalidOperationException("Get movie request failed");
+            return null;
         }
 
         return new MovieDto
@@ -45,7 +45,7 @@ public class MovieService : IMovieService
         };
     }
 
-    public async Task<IEnumerable<MovieDto>> SearchMovie(string query)
+    public async Task<IEnumerable<MovieDto>?> SearchMovie(string query)
     {
         var request = new RestRequest("search/movie");
         request.AddQueryParameter("query", query);
@@ -54,12 +54,8 @@ public class MovieService : IMovieService
         request.AddQueryParameter("page", 1);
 
         var response = await _client.GetAsync<SearchMovieResponse>(request);
-        if (response is null)
-        {
-            throw new InvalidOperationException("Search movie request failed");
-        }
 
-        return response.Results.Select(
+        return response?.Results.Select(
             movie =>
                 new MovieDto
                 {
@@ -73,7 +69,7 @@ public class MovieService : IMovieService
         );
     }
 
-    public async Task<IEnumerable<ActorDto>> SearchActor(string query)
+    public async Task<IEnumerable<ActorDto>?> SearchActor(string query)
     {
         var request = new RestRequest("search/person");
         request.AddQueryParameter("query", query);
@@ -82,12 +78,8 @@ public class MovieService : IMovieService
         request.AddQueryParameter("page", 1);
 
         var response = await _client.GetAsync<SearchPersonResponse>(request);
-        if (response is null)
-        {
-            throw new InvalidOperationException("Search person request failed");
-        }
 
-        return response.Results
+        return response?.Results
             .Where(person => person.KnownForDepartment == "Acting")
             .Select(
                 person =>
@@ -102,16 +94,24 @@ public class MovieService : IMovieService
             );
     }
 
-    public async Task<StartAndEndMovieDto> ChooseStartAndEndMovie()
+    public async Task<StartAndEndMovieDto?> ChooseStartAndEndMovie()
     {
+        var startMovieId = await ChooseRandomMovie();
+        var endMovieId = await ChooseRandomMovie();
+
+        if (startMovieId is null || endMovieId is null)
+        {
+            return null;
+        }
+        
         return new StartAndEndMovieDto
         {
-            StartMovieId = await ChooseRandomMovie(),
-            EndMovieId = await ChooseRandomMovie(),
+            StartMovieId = startMovieId.Value,
+            EndMovieId = endMovieId.Value,
         };
     }
 
-    private async Task<int> ChooseRandomMovie()
+    private async Task<int?> ChooseRandomMovie()
     {
         var request = new RestRequest("discover/movie");
         request.AddQueryParameter("include_adult", true);
@@ -125,7 +125,7 @@ public class MovieService : IMovieService
         var response = await _client.GetAsync<DiscoverMovieResponse>(request);
         if (response is null)
         {
-            throw new InvalidOperationException("Discover movie request failed");
+            return null;
         }
 
         var movies = response.Results;

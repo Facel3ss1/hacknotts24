@@ -15,8 +15,14 @@ public class ActorController : ControllerBase
     }
 
     [HttpGet("[action]")]
-    public async Task<IEnumerable<ActorDto>> Search([FromQuery] string query)
+    public async Task<ActionResult<IEnumerable<ActorDto>>> Search([FromQuery] string query)
     {
-        return await _movieService.SearchActor(query);
+        var actors = await _movieService.SearchActor(query);
+        if (actors is null)
+        {
+            return StatusCode(502);
+        }
+
+        return Ok(actors);
     }
 }

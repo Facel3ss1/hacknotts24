@@ -17,18 +17,36 @@ public class MovieController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MovieDto>> Get(int id)
     {
-        return await _movieService.GetMovieById(id);
+        var movie = await _movieService.GetMovieById(id);
+        if (movie is null)
+        {
+            return StatusCode(502);
+        }
+
+        return movie;
     }
 
     [HttpGet("[action]")]
-    public async Task<IEnumerable<MovieDto>> Search([FromQuery] string query)
+    public async Task<ActionResult<IEnumerable<MovieDto>>> Search([FromQuery] string query)
     {
-        return await _movieService.SearchMovie(query);
+        var movies = await _movieService.SearchMovie(query);
+        if (movies is null)
+        {
+            return StatusCode(502);
+        }
+
+        return Ok(movies);
     }
 
     [HttpGet("[action]")]
     public async Task<ActionResult<StartAndEndMovieDto>> ChooseStartAndEnd()
     {
-        return await _movieService.ChooseStartAndEndMovie();
+        var startAndEndMovie = await _movieService.ChooseStartAndEndMovie();
+        if (startAndEndMovie is null)
+        {
+            return StatusCode(502);
+        }
+
+        return startAndEndMovie;
     }
 }
