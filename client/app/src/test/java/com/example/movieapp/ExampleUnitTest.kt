@@ -1,4 +1,4 @@
-package com.example.client
+package com.example.movieapp
 
 import org.junit.Test
 
