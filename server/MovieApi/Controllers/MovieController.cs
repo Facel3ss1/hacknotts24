@@ -26,6 +26,18 @@ public class MovieController : ControllerBase
         return movie;
     }
 
+    [HttpGet("{id:int}/HasActor/{actorId:int}")]
+    public async Task<ActionResult<bool>> MovieHasActor(int id, int actorId)
+    {
+        var movieHasActor = await _movieService.MovieHasActor(id, actorId);
+        if (movieHasActor is null)
+        {
+            return StatusCode(502);
+        }
+
+        return Ok(movieHasActor);
+    }
+
     [HttpGet("[action]")]
     public async Task<ActionResult<IEnumerable<MovieDto>>> Search([FromQuery] string query)
     {

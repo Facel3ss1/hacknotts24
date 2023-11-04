@@ -10,5 +10,7 @@ public interface IMovieService
 
     Task<IEnumerable<ActorDto>?> SearchActor(string query);
 
+    Task<bool?> MovieHasActor(int movieId, int actorId);
+
     Task<StartAndEndMovieDto?> ChooseStartAndEndMovie();
 }

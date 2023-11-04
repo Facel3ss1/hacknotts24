@@ -94,6 +94,16 @@ public class MovieService : IMovieService
             );
     }
 
+    public async Task<bool?> MovieHasActor(int movieId, int actorId)
+    {
+        var request = new RestRequest("movie/{movie_id}/credits");
+        request.AddUrlSegment("movie_id", movieId);
+
+        var response = await _client.GetAsync<MovieCreditsResponse>(request);
+
+        return response?.Cast.Any(person => person.Id == actorId);
+    }
+
     public async Task<StartAndEndMovieDto?> ChooseStartAndEndMovie()
     {
         var startMovieId = await ChooseRandomMovie();
@@ -103,7 +113,7 @@ public class MovieService : IMovieService
         {
             return null;
         }
-        
+
         return new StartAndEndMovieDto
         {
             StartMovieId = startMovieId.Value,
