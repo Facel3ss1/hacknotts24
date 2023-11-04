@@ -1,8 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Microsoft.AspNetCore.SignalR.Client;
-
-Console.WriteLine("Hello, World!");
+﻿using Microsoft.AspNetCore.SignalR.Client;
 
 var connection = new HubConnectionBuilder().WithUrl("http://localhost:5191/GameHub").Build();
 

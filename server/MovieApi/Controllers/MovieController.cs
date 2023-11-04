@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RestSharp;
+using MovieApi.Data;
 
 namespace MovieApi.Controllers;
 
@@ -7,25 +7,22 @@ namespace MovieApi.Controllers;
 [Route("[controller]")]
 public class MovieController : ControllerBase
 {
-    private readonly TmdbSettings _tmdbSettings;
+    private readonly IMovieService _movieService;
 
-    public MovieController(IConfiguration config)
+    public MovieController(IMovieService movieService)
     {
-        _tmdbSettings =
-            config.GetSection("Tmdb").Get<TmdbSettings>()
-            ?? throw new InvalidOperationException("Could not find TMDB settings in config");
+        _movieService = movieService;
     }
 
-    [HttpGet]
+    [HttpGet("Test")]
     public async Task<IActionResult> GetAsync()
     {
-        var options = new RestClientOptions("https://api.themoviedb.org/3/authentication");
-        var client = new RestClient(options);
-        var request = new RestRequest("");
-        request.AddHeader("accept", "application/json");
-        request.AddHeader("Authorization", $"Bearer {_tmdbSettings.ApiReadAccessKey}");
-        var response = await client.GetAsync(request);
+        return Content(await _movieService.TestEndpoint(), "application/json");
+    }
 
-        return Content(response.Content ?? "{}", "application/json");
+    [HttpGet("ChooseStartAndEnd")]
+    public async Task<ActionResult<StartAndEndMovieDto>> ChooseStartAndEndMovie()
+    {
+        return await _movieService.ChooseStartAndEndMovie();
     }
 }
