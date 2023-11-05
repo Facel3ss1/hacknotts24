@@ -125,6 +125,6 @@ fun RandomMovies(viewModel: MoviesViewModel = hiltViewModel()) {
     if (startMovie == null || endMovie == null) {
         Text("Loading :)")
     } else {
-        Game(name = "Random", startMovie!!, endMovie = endMovie!!)
+        Game(name = "Random", startMovie!!, endMovie = endMovie!!, viewModel)
     }
 }

@@ -3,18 +3,28 @@ package com.example.movieapp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +35,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.example.movieapp.data.remote.Actor
 import com.example.movieapp.data.remote.Movie
+import com.example.movieapp.ui.MoviesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +44,7 @@ fun Game(
     name: String,
     startMovie: Movie,
     endMovie: Movie,
+    viewModel: MoviesViewModel,
     screenController: NavHostController = rememberNavController()
 ) {
     Scaffold() { innerPadding ->
@@ -58,7 +69,7 @@ fun Game(
                     color = MaterialTheme.colorScheme.secondary,
                     text = "target film: $endMovie"
                 )
-
+                Spacer(modifier = Modifier.padding(8.dp))
                 NavHost(
                     navController = screenController,
                     "movie"
@@ -70,14 +81,7 @@ fun Game(
                         )
                     }
                     composable("actor") {
-                        ActorView(
-                            actor = Actor(
-                                2638,
-                                "Cary Grant",
-                                "https://image.tmdb.org/t/p/w185/oF5Vj64OEEDAy7DzpBP0W8fSwC6.jpg"
-                            ),
-                            onNavigateToMovie = { screenController.navigate("movie") },
-                        )
+                        ActorView(viewModel)
                     }
                 }
 //                FilmView(
@@ -133,7 +137,7 @@ fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
                 )
 
                 Button(onClick = onNavigateToActor) {
-                    Text(text = "Submit")
+                    Text(text = "Next")
                 }
             }
         }
@@ -142,61 +146,53 @@ fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
-    val actors = listOf(
-        Actor(
-            2638,
-            "Cary Grant",
-            "https://image.tmdb.org/t/p/w185/oF5Vj64OEEDAy7DzpBP0W8fSwC6.jpg"
-        )
-    )
+fun ActorView(viewModel: MoviesViewModel) {
+    val actors by viewModel.actors.collectAsState()
+    var query by rememberSaveable { mutableStateOf("") }
+
     Scaffold() { innerPadding ->
         Box(
-            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .aspectRatio(1f)
-                        .clip(CircleShape)
-                ) {
-                    if (actor.profileImageUrl != null) {
-                        AsyncImage(
-                            model = actor.profileImageUrl,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                        )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(value = query, onValueChange = {
+                    query = it
+                    if (query.isNotEmpty()) {
+                        viewModel.searchActor(query)
+                    }
+                })
+                Spacer(modifier = Modifier.padding(8.dp))
+                Box {
+                    LazyColumn(
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(
+                            if (query.isEmpty()) {
+                                0
+                            } else {
+                                actors.size
+                            }
+                        ) { actor ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                AsyncImage(
+                                    model = actors[actor].profileImageUrl,
+                                    contentDescription = null
+                                )
+                                TextButton(
+                                    content = { Text(actors[actor].name) },
+                                    onClick = { },
+                                )
+                            }
+                        }
                     }
                 }
-
-                Text(
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.secondary,
-                    text = actor.name
-                )
-
-                Button(onClick = onNavigateToMovie) {
-                    Text(text = "Submit")
-                }
-
             }
-//            LazyColumn {
-//                items(actors.size) { actor ->
-//
-//                }
-//            }
         }
     }
 }

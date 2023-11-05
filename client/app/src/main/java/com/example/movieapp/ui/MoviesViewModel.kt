@@ -47,6 +47,13 @@ class MoviesViewModel @Inject constructor(private val client: MovieApi) : ViewMo
         }
     }
 
+    fun searchActor(query: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val fetchedActors = client.searchActor(query)
+            _actors.emit(fetchedActors.filter { actor -> actor.profileImageUrl != null })
+        }
+    }
+
     private fun setStartMovie(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val fetchedMovie = client.getMovieById(id)
