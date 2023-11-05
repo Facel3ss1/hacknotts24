@@ -1,4 +1,5 @@
-﻿using MovieApi.Data;
+﻿using System.Globalization;
+using MovieApi.Data;
 using RestSharp;
 
 namespace MovieApi;
@@ -34,13 +35,26 @@ public class MovieService : IMovieService
             return null;
         }
 
+        int? releaseYear = null;
+        if (
+            DateOnly.TryParse(
+                response.ReleaseDate,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var releaseDate
+            )
+        )
+        {
+            releaseYear = releaseDate.Year;
+        }
+
         return new MovieDto
         {
             Id = response.Id,
             Title = response.Title,
-            ReleaseYear = response.ReleaseDate.Year,
+            ReleaseYear = releaseYear,
             PosterImageUrl = string.IsNullOrEmpty(response.PosterPath)
-                ? string.Empty
+                ? null
                 : PosterImageUrlPrefix + response.PosterPath,
         };
     }
@@ -55,18 +69,31 @@ public class MovieService : IMovieService
 
         var response = await _client.GetAsync<SearchMovieResponse>(request);
 
-        return response?.Results.Select(
-            movie =>
-                new MovieDto
-                {
-                    Id = movie.Id,
-                    Title = movie.Title,
-                    ReleaseYear = movie.ReleaseDate.Year,
-                    PosterImageUrl = string.IsNullOrEmpty(movie.PosterPath)
-                        ? string.Empty
-                        : PosterImageUrlPrefix + movie.PosterPath,
-                }
-        );
+        return response?.Results.Select(movie =>
+        {
+            int? releaseYear = null;
+            if (
+                DateOnly.TryParse(
+                    movie.ReleaseDate,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var releaseDate
+                )
+            )
+            {
+                releaseYear = releaseDate.Year;
+            }
+
+            return new MovieDto
+            {
+                Id = movie.Id,
+                Title = movie.Title,
+                ReleaseYear = releaseYear,
+                PosterImageUrl = string.IsNullOrEmpty(movie.PosterPath)
+                    ? null
+                    : PosterImageUrlPrefix + movie.PosterPath,
+            };
+        });
     }
 
     public async Task<IEnumerable<ActorDto>?> SearchActor(string query)
@@ -88,7 +115,7 @@ public class MovieService : IMovieService
                         Id = person.Id,
                         Name = person.Name,
                         ProfileImageUrl = string.IsNullOrEmpty(person.ProfilePath)
-                            ? string.Empty
+                            ? null
                             : ProfileImageUrlPrefix + person.ProfilePath,
                     }
             );

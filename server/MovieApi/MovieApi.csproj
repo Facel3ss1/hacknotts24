@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>61b6a2af-b8fa-493b-9532-efc36ad57ee0</UserSecretsId>
+        <ServerGarbageCollection>false</ServerGarbageCollection>
     </PropertyGroup>
 
     <ItemGroup>

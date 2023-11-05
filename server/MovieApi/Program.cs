@@ -23,6 +23,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+}
+
 app.UseAuthorization();
 
 app.MapControllers();

@@ -20,7 +20,7 @@ public class ActorController : ControllerBase
         var actors = await _movieService.SearchActor(query);
         if (actors is null)
         {
-            return StatusCode(502);
+            return StatusCode(StatusCodes.Status502BadGateway);
         }
 
         return Ok(actors);

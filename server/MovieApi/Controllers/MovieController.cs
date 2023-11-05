@@ -20,7 +20,7 @@ public class MovieController : ControllerBase
         var movie = await _movieService.GetMovieById(id);
         if (movie is null)
         {
-            return StatusCode(502);
+            return StatusCode(StatusCodes.Status502BadGateway);
         }
 
         return movie;
@@ -32,7 +32,7 @@ public class MovieController : ControllerBase
         var movieHasActor = await _movieService.MovieHasActor(id, actorId);
         if (movieHasActor is null)
         {
-            return StatusCode(502);
+            return StatusCode(StatusCodes.Status502BadGateway);
         }
 
         return Ok(movieHasActor);
@@ -44,7 +44,7 @@ public class MovieController : ControllerBase
         var movies = await _movieService.SearchMovie(query);
         if (movies is null)
         {
-            return StatusCode(502);
+            return StatusCode(StatusCodes.Status502BadGateway);
         }
 
         return Ok(movies);
@@ -56,7 +56,7 @@ public class MovieController : ControllerBase
         var startAndEndMovie = await _movieService.ChooseStartAndEndMovie();
         if (startAndEndMovie is null)
         {
-            return StatusCode(502);
+            return StatusCode(StatusCodes.Status502BadGateway);
         }
 
         return startAndEndMovie;

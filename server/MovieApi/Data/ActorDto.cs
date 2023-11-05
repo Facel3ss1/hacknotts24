@@ -6,5 +6,5 @@ public record ActorDto
 
     public required string Name { get; set; }
 
-    public required string ProfileImageUrl { get; set; }
+    public required string? ProfileImageUrl { get; set; }
 }
