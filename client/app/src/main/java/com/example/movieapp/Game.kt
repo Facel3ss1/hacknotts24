@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -19,13 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.movieapp.data.remote.Actor
 import com.example.movieapp.data.remote.Movie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Game(name: String, startMovie: Movie, endMovie: Movie) {
+fun Game(name: String, startMovie: Movie, endMovie: Movie, screenController: NavHostController = rememberNavController()) {
     Scaffold() { innerPadding ->
         Box(modifier = Modifier
             .fillMaxSize()
@@ -40,10 +45,27 @@ fun Game(name: String, startMovie: Movie, endMovie: Movie) {
                     color = MaterialTheme.colorScheme.primary,
                     text = name
                 )
-                FilmView(
-                    movie = startMovie,
-                    endMovie = endMovie,
-                )
+
+                NavHost(
+                    navController = screenController,
+                    "movie"
+                ) {
+                    composable("movie") {
+                        FilmView(movie = startMovie,
+                            endMovie = endMovie,
+                            onNavigateToActor = { screenController.navigate("actor") },
+                            )
+                    }
+                    composable("actor") {
+                        ActorView(actor = Actor(0, "", null),
+                            onNavigateToMovie = { screenController.navigate("movie") },
+                        )
+                    }
+                }
+//                FilmView(
+//                    movie = startMovie,
+//                    endMovie = endMovie,
+//                )
             }
         }
     }
@@ -51,11 +73,13 @@ fun Game(name: String, startMovie: Movie, endMovie: Movie) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilmView(movie: Movie, endMovie: Movie) {
+fun FilmView(movie: Movie, endMovie: Movie, onNavigateToActor: () -> Unit) {
     Scaffold() { innerPadding ->
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier
@@ -72,7 +96,9 @@ fun FilmView(movie: Movie, endMovie: Movie) {
                     }
                     else {
                         Box(
-                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.primaryContainer),
                         )
                     }
                 }
@@ -83,6 +109,10 @@ fun FilmView(movie: Movie, endMovie: Movie) {
                     color = MaterialTheme.colorScheme.secondary,
                     text = movie.toString()
                 )
+
+                Button(onClick = onNavigateToActor) {
+                    Text(text = "Submit")
+                }
             }
         }
     }
@@ -90,7 +120,7 @@ fun FilmView(movie: Movie, endMovie: Movie) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActorView(actor: Actor) {
+fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
     Scaffold() { innerPadding ->
         Box(
             contentAlignment = Alignment.Center,
@@ -101,7 +131,6 @@ fun ActorView(actor: Actor) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(modifier = Modifier
                     .fillMaxWidth(0.5f)
-                    .aspectRatio(27F / 40F)
                     .clip(CircleShape)
                 ) {
                     if(actor.profileImageURL != null) {
@@ -113,7 +142,9 @@ fun ActorView(actor: Actor) {
                     }
                     else {
                         Box(
-                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.primaryContainer),
                         )
                     }
                 }
@@ -124,6 +155,10 @@ fun ActorView(actor: Actor) {
                     color = MaterialTheme.colorScheme.secondary,
                     text = actor.name
                 )
+
+                Button(onClick = onNavigateToMovie) {
+                    Text(text = "Submit")
+                }
             }
         }
     }
