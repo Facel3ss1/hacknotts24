@@ -20,7 +20,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,7 +44,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class Message(val author: String, val body: String)
+data class Message(val heading: String, val body: String)
 
 
 @Composable
@@ -51,7 +55,7 @@ fun MyAppNavHost(modifier: Modifier = Modifier,
         NavHost(modifier = modifier, navController = navController, startDestination = "menu") {
             composable("menu") {
                 Menu(
-                    Message("Android", "Jetpack Compose"),
+                    Message("Movie Finding Game", "Jetpack Compose"),
                     onNavigateToSearchMovies = { navController.navigate("searchmovies") },
                     onNavigateToRandomMovies = { navController.navigate("randommovies") },
                     onNavigateToSettings = { navController.navigate("settings") },
@@ -83,26 +87,58 @@ fun MyAppNavHost(modifier: Modifier = Modifier,
 
 }
 
+
+
 @Composable
 fun Settings() {
-
+    Text(
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+        style = MaterialTheme.typography.headlineLarge,
+        color = MaterialTheme.colorScheme.primary,
+        text = "Settings"
+    )
 }
 
 @Composable
 fun RandomMovies() {
-
+    Text(
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+        style = MaterialTheme.typography.headlineLarge,
+        color = MaterialTheme.colorScheme.primary,
+        text = "Random"
+    )
 }
+
 @Composable
 fun Credits() {
     Box(contentAlignment = Alignment.Center) {
         Column {
             Text(
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                text = "Credits"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.secondary,
                 text = "Coding - Peter Medus"
             )
             Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.secondary,
                 text = "Coding - Charlie Baker"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.secondary,
+                text = "This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
             )
         }
     }
@@ -110,9 +146,14 @@ fun Credits() {
 
 @Composable
 fun SearchMovies() {
-
+    Text(
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+        style = MaterialTheme.typography.headlineLarge,
+        color = MaterialTheme.colorScheme.primary,
+        text = "Search"
+    )
 }
-
 
 @Composable
 fun Menu(
@@ -131,11 +172,18 @@ fun Menu(
 //        )
             Column {
                 Text(
-                    color = MaterialTheme.colorScheme.secondary,
-                    text = msg.author
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    text = msg.heading,
                 )
                 Text(
-                    text = msg.body
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    text = msg.body,
                 )
                 Column() {
                     Button(onClick = onNavigateToSearchMovies, modifier = Modifier.fillMaxWidth()) {
