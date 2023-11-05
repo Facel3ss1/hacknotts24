@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.movieapp.data.remote.Movie
 import com.example.movieapp.ui.theme.MovieAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -58,13 +59,9 @@ fun AppNavHost(
         composable("menu") {
             Menu(
                 "Movie Finding Game",
-                onNavigateToSearchMovies = { navController.navigate("searchMovies") },
                 onNavigateToRandomMovies = { navController.navigate("randomMovies") },
                 onNavigateToCredits = { navController.navigate("credits") },
             )
-        }
-        composable("searchMovies") {
-            SearchMovies()
         }
         composable("randomMovies") {
             RandomMovies()
@@ -79,7 +76,6 @@ fun AppNavHost(
 @Composable
 fun Menu(
     heading: String,
-    onNavigateToSearchMovies: () -> Unit,
     onNavigateToRandomMovies: () -> Unit,
     onNavigateToCredits: () -> Unit,
 ) {
@@ -102,12 +98,6 @@ fun Menu(
                     Spacer(modifier = Modifier.height(32.dp))
                     Column {
                         Button(
-                            onClick = onNavigateToSearchMovies,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(text = "Play with specific movies")
-                        }
-                        Button(
                             onClick = onNavigateToRandomMovies,
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -124,11 +114,12 @@ fun Menu(
 }
 
 @Composable
-fun SearchMovies() {
-    Game(name = "Search", startMovieId = 0, endMovieId = 0)
-}
-
-@Composable
 fun RandomMovies() {
-    Game(name = "Random", startMovieId = 0, endMovieId = 0)
+    val startMovie = Movie(
+        426,
+        "Vertigo",
+        1958,
+        null
+    )
+    Game(name = "Random", startMovie, endMovie = startMovie)
 }
