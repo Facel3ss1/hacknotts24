@@ -42,52 +42,58 @@ import com.example.movieapp.ui.MoviesViewModel
 @Composable
 fun Game(
     name: String,
-    startMovie: Movie,
-    endMovie: Movie,
+    startMovie: Movie?,
+    endMovie: Movie?,
     viewModel: MoviesViewModel,
     screenController: NavHostController = rememberNavController()
 ) {
     Scaffold() { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Text(
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    text = name
-                )
-                Text(
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.secondary,
-                    text = "target film: $endMovie"
-                )
-                Spacer(modifier = Modifier.padding(8.dp))
-                NavHost(
-                    navController = screenController,
-                    "movie"
-                ) {
-                    composable("movie") {
-                        FilmView(
-                            movie = startMovie,
-                            onNavigateToActor = { screenController.navigate("actor") },
-                        )
-                    }
-                    composable("actor") {
-                        ActorView(viewModel)
+        if (startMovie == null || endMovie == null) {
+            Text(
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                text = "Loading..."
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        text = name
+                    )
+                    Text(
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.secondary,
+                        text = "Target Film: $endMovie"
+                    )
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    NavHost(
+                        navController = screenController,
+                        "movie"
+                    ) {
+                        composable("movie") {
+                            FilmView(
+                                movie = startMovie,
+                                onNavigateToActor = { screenController.navigate("actor") },
+                            )
+                        }
+                        composable("actor") {
+                            ActorView(viewModel)
+                        }
                     }
                 }
-//                FilmView(
-//                    movie = startMovie,
-//                    endMovie = endMovie,
-//                )
             }
         }
     }

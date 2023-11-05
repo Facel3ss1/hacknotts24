@@ -122,9 +122,5 @@ fun Menu(
 fun RandomMovies(viewModel: MoviesViewModel = hiltViewModel()) {
     val startMovie by viewModel.startMovie.collectAsState()
     val endMovie by viewModel.endMovie.collectAsState()
-    if (startMovie == null || endMovie == null) {
-        Text("Loading :)")
-    } else {
-        Game(name = "Random", startMovie!!, endMovie = endMovie!!, viewModel)
-    }
+    Game(name = "Random", startMovie, endMovie = endMovie, viewModel)
 }
