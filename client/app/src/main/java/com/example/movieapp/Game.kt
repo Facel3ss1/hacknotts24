@@ -86,14 +86,42 @@ fun Game(
                         composable("movie") {
                             FilmView(
                                 movie = startMovie,
-                                onNavigateToActor = { screenController.navigate("actor") },
+                                onNavigateToActor = { screenController.navigate("searchActor") },
                             )
                         }
+                        composable("searchActor") {
+                            SearchActor(viewModel)
+                        }
                         composable("actor") {
-                            ActorView(viewModel)
+                            ActorView()
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActorView() {
+    Scaffold() { innerPadding ->
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .aspectRatio(1F)
+                        .clip(CircleShape)
+                )
             }
         }
     }
@@ -152,7 +180,7 @@ fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActorView(viewModel: MoviesViewModel) {
+fun SearchActor(viewModel: MoviesViewModel) {
     val actors by viewModel.actors.collectAsState()
     var query by rememberSaveable { mutableStateOf("") }
 
@@ -195,6 +223,7 @@ fun ActorView(viewModel: MoviesViewModel) {
                                     onClick = { },
                                 )
                             }
+                            Spacer(modifier = Modifier.padding(8.dp))
                         }
                     }
                 }
