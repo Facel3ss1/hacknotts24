@@ -17,20 +17,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.movieapp.ui.MoviesViewModel
 import com.example.movieapp.ui.theme.MovieAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -117,8 +113,6 @@ fun Menu(
 }
 
 @Composable
-fun RandomMovies(viewModel: MoviesViewModel = hiltViewModel()) {
-    val startMovie by viewModel.startMovie.collectAsState()
-    val endMovie by viewModel.endMovie.collectAsState()
-    Game(name = "Random", startMovie, endMovie = endMovie, viewModel)
+fun RandomMovies() {
+    Game(name = "Random")
 }

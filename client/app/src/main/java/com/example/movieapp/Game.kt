@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,16 +42,19 @@ import com.example.movieapp.ui.MoviesViewModel
 @Composable
 fun Game(
     name: String,
-    startMovie: Movie?,
-    endMovie: Movie?,
-    viewModel: MoviesViewModel,
+    viewModel: MoviesViewModel = hiltViewModel(),
     screenController: NavHostController = rememberNavController()
 ) {
+    val startMovie by viewModel.startMovie.collectAsState()
+    val endMovie by viewModel.endMovie.collectAsState()
+
     Scaffold() { innerPadding ->
         if (startMovie == null || endMovie == null) {
             Text(
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(innerPadding),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
                 text = "Loading..."
@@ -80,22 +84,26 @@ fun Game(
                     Spacer(modifier = Modifier.padding(8.dp))
                     NavHost(
                         navController = screenController,
-                        "movie"
+                        startDestination = "movie"
                     ) {
                         composable("movie") {
                             FilmView(
-                                movie = startMovie,
+                                movie = startMovie!!,
                                 onNavigateToActor = { screenController.navigate("searchActor") },
                             )
                         }
                         composable("searchActor") {
-                            SearchActor(viewModel)
+                            val actors by viewModel.actors.collectAsState()
+                            SearchActor(
+                                actors,
+                                onQueryChanged = { query -> viewModel.searchActor(query) },
+                                onActorClicked = {})
                         }
                         composable("actor") {
                             ActorView(
-                                    Actor(0, "", null),
-                                    onNavigateToMovie = { screenController.navigate("searchActor") }
-                                )
+                                Actor(0, "", null),
+                                onNavigateToMovie = { screenController.navigate("searchActor") }
+                            )
                         }
                     }
                 }
@@ -106,27 +114,68 @@ fun Game(
 
 @Composable
 fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
-    Scaffold() { innerPadding ->
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .aspectRatio(1F)
+                    .clip(CircleShape)
+            )
+            if (actor.profileImageUrl != null) {
+                AsyncImage(
+                    model = actor.profileImageUrl,
+                    null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .aspectRatio(1F)
-                        .clip(CircleShape)
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                 )
-                if (actor.profileImageUrl != null) {
+            }
+            Text(
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.secondary,
+                text = actor.name
+            )
+
+            Button(onClick = onNavigateToMovie) {
+                Text(text = "Next")
+            }
+        }
+    }
+}
+
+@Composable
+fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .aspectRatio(2f / 3f)
+                    .clip(RoundedCornerShape(15.dp))
+            ) {
+                if (movie.posterImageUrl != null) {
                     AsyncImage(
-                        model = actor.profileImageUrl,
-                        null,
+                        model = movie.posterImageUrl,
+                        contentDescription = null,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -136,118 +185,66 @@ fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
                             .background(MaterialTheme.colorScheme.primaryContainer),
                     )
                 }
-                Text(
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.secondary,
-                    text = actor.name
-                )
+            }
 
-                Button(onClick = onNavigateToMovie) {
-                    Text(text = "Next")
-                }
+            Text(
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.secondary,
+                text = movie.toString()
+            )
+
+            Button(onClick = onNavigateToActor) {
+                Text(text = "Next")
             }
         }
     }
 }
 
 @Composable
-fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
-    Scaffold() { innerPadding ->
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .aspectRatio(2f / 3f)
-                        .clip(RoundedCornerShape(15.dp))
-                ) {
-                    if (movie.posterImageUrl != null) {
-                        AsyncImage(
-                            model = movie.posterImageUrl,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                        )
-                    }
-                }
-
-                Text(
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.secondary,
-                    text = movie.toString()
-                )
-
-                Button(onClick = onNavigateToActor) {
-                    Text(text = "Next")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SearchActor(viewModel: MoviesViewModel) {
-    val actors by viewModel.actors.collectAsState()
+fun SearchActor(
+    actors: List<Actor>,
+    onQueryChanged: (String) -> Unit,
+    onActorClicked: (Actor) -> Unit
+) {
     var query by rememberSaveable { mutableStateOf("") }
 
-    Scaffold() { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                OutlinedTextField(singleLine = true, value = query, onValueChange = {
-                    query = it
-                    if (query.isNotEmpty()) {
-                        viewModel.searchActor(query)
-                    }
-                })
-                Spacer(modifier = Modifier.padding(8.dp))
-                Box {
-                    LazyColumn(
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(
-                            if (query.isEmpty()) {
-                                0
-                            } else {
-                                actors.size
-                            }
-                        ) { actor ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                AsyncImage(
-                                    model = actors[actor].profileImageUrl,
-                                    contentDescription = null,
-                                )
-                                TextButton(
-                                    content = { Text(actors[actor].name) },
-                                    onClick = { },
-                                )
-                            }
-                            Spacer(modifier = Modifier.padding(8.dp))
+            OutlinedTextField(singleLine = true, value = query, onValueChange = {
+                query = it
+                if (query.isNotEmpty()) {
+                    onQueryChanged(query)
+                }
+            })
+            Spacer(modifier = Modifier.padding(8.dp))
+            Box {
+                LazyColumn(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(
+                        if (query.isEmpty()) {
+                            0
+                        } else {
+                            actors.size
                         }
+                    ) { actor ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            AsyncImage(
+                                model = actors[actor].profileImageUrl,
+                                contentDescription = null,
+                            )
+                            TextButton(
+                                content = { Text(actors[actor].name) },
+                                onClick = { onActorClicked(actors[actor]) },
+                            )
+                        }
+                        Spacer(modifier = Modifier.padding(8.dp))
                     }
                 }
             }
