@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.data.remote.Actor
 import com.example.movieapp.data.remote.Movie
-import com.example.movieapp.data.remote.api.KtorApiClient
+import com.example.movieapp.data.remote.api.MovieApi
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MoviesViewModel(private val client: KtorApiClient) : ViewModel() {
+@HiltViewModel
+class MoviesViewModel @Inject constructor(private val client: MovieApi) : ViewModel() {
     private val _movies = MutableStateFlow<List<Movie>>(emptyList())
     val movies: StateFlow<List<Movie>> = _movies
 
@@ -18,7 +21,24 @@ class MoviesViewModel(private val client: KtorApiClient) : ViewModel() {
     val actors: StateFlow<List<Actor>> = _actors
 
     private val _startMovie = MutableStateFlow<Movie?>(null)
+    val startMovie: StateFlow<Movie?> = _startMovie
     private val _endMovie = MutableStateFlow<Movie?>(null)
+    val endMovie: StateFlow<Movie?> = _endMovie
+
+    init {
+        chooseStartAndEndMovie()
+    }
+
+    private fun chooseStartAndEndMovie() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val startAndEndMovie = client.chooseStartAndEndMovie()
+            val fetchedStartMovie = client.getMovieById(startAndEndMovie.startMovieId)
+            val fetchedEndMovie = client.getMovieById(startAndEndMovie.endMovieId)
+
+            _startMovie.emit(fetchedStartMovie)
+            _endMovie.emit(fetchedEndMovie)
+        }
+    }
 
     private fun searchMovie(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -40,13 +60,4 @@ class MoviesViewModel(private val client: KtorApiClient) : ViewModel() {
             _endMovie.emit(fetchedMovie)
         }
     }
-
-//    companion object {
-//        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-//            @Suppress("UNCHECKED_CAST")
-//            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-//                return MoviesViewModel(KtorApiClient()) as T
-//            }
-//        }
-//    }
 }

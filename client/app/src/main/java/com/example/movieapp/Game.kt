@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -57,7 +56,7 @@ fun Game(
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.secondary,
-                    text = "target film: ${endMovie.toString()}"
+                    text = "target film: $endMovie"
                 )
 
                 NavHost(
@@ -110,9 +109,9 @@ fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
                         .aspectRatio(27F / 40F)
                         .clip(RoundedCornerShape(15.dp))
                 ) {
-                    if (movie.posterImageURL != null) {
+                    if (movie.posterImageUrl != null) {
                         AsyncImage(
-                            model = movie.posterImageURL,
+                            model = movie.posterImageUrl,
                             contentDescription = null,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -165,9 +164,9 @@ fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
                         .aspectRatio(1f)
                         .clip(CircleShape)
                 ) {
-                    if (actor.profileImageURL != null) {
+                    if (actor.profileImageUrl != null) {
                         AsyncImage(
-                            model = actor.profileImageURL,
+                            model = actor.profileImageUrl,
                             contentDescription = null,
                             modifier = Modifier.fillMaxWidth()
                         )
