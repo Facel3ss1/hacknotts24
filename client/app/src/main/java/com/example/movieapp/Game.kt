@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -38,7 +37,6 @@ import coil.compose.AsyncImage
 import com.example.movieapp.data.remote.Movie
 import com.example.movieapp.ui.MoviesViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Game(
     name: String,
@@ -102,7 +100,6 @@ fun Game(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActorView() {
     Scaffold() { innerPadding ->
@@ -127,7 +124,6 @@ fun ActorView() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
     Scaffold() { innerPadding ->
@@ -144,14 +140,14 @@ fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
-                        .aspectRatio(27F / 40F)
+                        .aspectRatio(2f / 3f)
                         .clip(RoundedCornerShape(15.dp))
                 ) {
                     if (movie.posterImageUrl != null) {
                         AsyncImage(
                             model = movie.posterImageUrl,
                             contentDescription = null,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxSize()
                         )
                     } else {
                         Box(
@@ -178,7 +174,6 @@ fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchActor(viewModel: MoviesViewModel) {
     val actors by viewModel.actors.collectAsState()
@@ -194,7 +189,7 @@ fun SearchActor(viewModel: MoviesViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(value = query, onValueChange = {
+                OutlinedTextField(singleLine = true, value = query, onValueChange = {
                     query = it
                     if (query.isNotEmpty()) {
                         viewModel.searchActor(query)
@@ -216,7 +211,7 @@ fun SearchActor(viewModel: MoviesViewModel) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 AsyncImage(
                                     model = actors[actor].profileImageUrl,
-                                    contentDescription = null
+                                    contentDescription = null,
                                 )
                                 TextButton(
                                     content = { Text(actors[actor].name) },
