@@ -3,37 +3,29 @@ package com.example.movieapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.movieapp.ui.theme.MovieAppTheme
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.movieapp.ui.theme.MovieAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,57 +33,42 @@ class MainActivity : ComponentActivity() {
         setContent {
             MovieAppTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    val navController = rememberNavController()
-                    MyAppNavHost(modifier = Modifier.fillMaxSize())
+                    AppNavHost(modifier = Modifier.fillMaxSize())
                 }
             }
         }
     }
 }
 
-data class Message(val heading: String)
-
-
 @Composable
-fun MyAppNavHost(modifier: Modifier = Modifier,
-                 navController: NavHostController = rememberNavController(),
-                 startDestination: String = "profile",)  {
-    MovieAppTheme {
-        NavHost(modifier = modifier, navController = navController, startDestination = "menu") {
-            composable("menu") {
-                Menu(
-                    Message("Movie Finding Game"),
-                    onNavigateToSearchMovies = { navController.navigate("searchmovies") },
-                    onNavigateToRandomMovies = { navController.navigate("randommovies") },
-                    onNavigateToSettings = { navController.navigate("settings") },
-                    onNavigateToCredits = { navController.navigate("theCredits") },
-                    onNavigateToQuit = { navController.navigate("quit") }
-                )
-            }
-            composable("searchmovies") {
-                SearchMovies()
-            }
-            composable("randommovies") {
-                RandomMovies()
-            }
-            composable("settings") {
-                Settings()
-            }
-            composable("theCredits") {
-                Credits()
-            }
+fun AppNavHost(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
+) {
+    NavHost(modifier = modifier, navController = navController, startDestination = "menu") {
+        composable("menu") {
+            Menu(
+                "Movie Finding Game",
+                onNavigateToSearchMovies = { navController.navigate("searchMovies") },
+                onNavigateToRandomMovies = { navController.navigate("randomMovies") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onNavigateToCredits = { navController.navigate("credits") },
+            )
         }
-            /*...*/
+        composable("searchMovies") {
+            SearchMovies()
+        }
+        composable("randomMovies") {
+            RandomMovies()
+        }
+        composable("settings") {
+            Settings()
+        }
+        composable("credits") {
+            Credits()
+        }
     }
-//    Surface(color = Color.Cyan) {
-//        Text(
-//            text = "Hi, my name is $name!",
-//            modifier = modifier.padding(24.dp)
-//        )
-//    }
-
 }
-
 
 
 @Composable
@@ -141,7 +118,9 @@ fun Credits() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.secondary,
                 text = "This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
@@ -163,19 +142,14 @@ fun SearchMovies() {
 
 @Composable
 fun Menu(
-    msg: Message,
+    heading: String,
     onNavigateToSearchMovies: () -> Unit,
     onNavigateToRandomMovies: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToCredits: () -> Unit,
-    onNavigateToQuit: () -> Unit,
 ) {
     Box(contentAlignment = Alignment.Center) {
         Row(modifier = Modifier.padding(all = 8.dp)) {
-//        Image(
-//            painter = painterResource(R.drawable.profile_picture),
-//            contentDescription = "Contact profile picture",
-//        )
             Column {
                 Text(
                     fontWeight = Bold,
@@ -183,10 +157,10 @@ fun Menu(
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary,
-                    text = msg.heading,
+                    text = heading,
                 )
                 Spacer(modifier = Modifier.height(32.dp))
-                Column() {
+                Column {
                     Button(onClick = onNavigateToSearchMovies, modifier = Modifier.fillMaxWidth()) {
                         Text(text = "Play with specific movies")
                     }
@@ -199,33 +173,8 @@ fun Menu(
                     Button(onClick = onNavigateToCredits, modifier = Modifier.fillMaxWidth()) {
                         Text(text = "Credits")
                     }
-                    Button(onClick = onNavigateToQuit, modifier = Modifier.fillMaxWidth()) {
-                        Text(text = "Quit")
-                    }
                 }
             }
-        }
-    }
-}
-
-@Preview(name = "Light Mode")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "Dark Mode"
-)
-@Composable
-fun PreviewMessageCard() {
-    MovieAppTheme {
-        Column {
-            Menu(
-                msg = Message("Lexi"),
-                onNavigateToSearchMovies = {},
-                onNavigateToRandomMovies = {},
-                onNavigateToCredits = {},
-                onNavigateToSettings = {},
-                onNavigateToQuit = {}
-            )
         }
     }
 }
