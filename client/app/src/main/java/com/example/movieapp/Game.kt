@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,8 +59,10 @@ fun Game(name: String, startMovie: Movie, endMovie: Movie, screenController: Nav
                             )
                     }
                     composable("actor") {
-                        ActorView(actor = Actor(0, "", null),
+                        ActorView(
+                            actor = Actor(2638, "Cary Grant", "https://image.tmdb.org/t/p/w185/oF5Vj64OEEDAy7DzpBP0W8fSwC6.jpg"),
                             onNavigateToMovie = { screenController.navigate("movie") },
+                            endMovie = endMovie,
                         )
                     }
                 }
@@ -82,6 +86,13 @@ fun FilmView(movie: Movie, endMovie: Movie, onNavigateToActor: () -> Unit) {
                 .padding(innerPadding)
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    text = "target film: ${endMovie.toString()}"
+                )
                 Box(modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .aspectRatio(27F / 40F)
@@ -120,7 +131,7 @@ fun FilmView(movie: Movie, endMovie: Movie, onNavigateToActor: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
+fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit, endMovie: Movie) {
     Scaffold() { innerPadding ->
         Box(
             contentAlignment = Alignment.Center,
@@ -129,8 +140,16 @@ fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
                 .padding(innerPadding)
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    text = "target film: ${endMovie.toString()}"
+                )
                 Box(modifier = Modifier
                     .fillMaxWidth(0.5f)
+                    .aspectRatio(1f)
                     .clip(CircleShape)
                 ) {
                     if(actor.profileImageURL != null) {

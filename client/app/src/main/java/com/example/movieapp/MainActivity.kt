@@ -119,7 +119,7 @@ fun RandomMovies() {
         426,
         "Vertigo",
         1958,
-        null
+        "https://image.tmdb.org/t/p/w780/15uOEfqBNTVtDUT7hGBVCka0rZz.jpg"
     )
     Game(name = "Random", startMovie, endMovie = startMovie)
 }
