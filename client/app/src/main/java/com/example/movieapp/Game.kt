@@ -48,7 +48,7 @@ fun Game(name: String, startMovieId: Int, endMovieId: Int) {
                         426,
                         "Vertigo",
                         1958,
-                        null
+                        "https://image.tmdb.org/t/p/w780/15uOEfqBNTVtDUT7hGBVCka0rZz.jpg"
                     ),
                     targetMovie = Movie(
                         426,
@@ -112,7 +112,31 @@ fun ActorView(actor: Actor, targetActor: Actor) {
                 .padding(innerPadding)
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//                AsyncImage()
+                Box(modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .aspectRatio(27F / 40F)
+                    .clip(RoundedCornerShape(15.dp))
+                ) {
+                    if(actor.profileImageURL != null) {
+                        AsyncImage(
+                            model = actor.profileImageURL,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    else {
+                        Box(
+                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer),
+                        )
+                    }
+                }
+
+                Text(textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    text = actor.name
+                )
             }
         }
     }
