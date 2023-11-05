@@ -18,12 +18,17 @@ import com.example.movieapp.ui.theme.MovieAppTheme
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -44,7 +49,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class Message(val heading: String, val body: String)
+data class Message(val heading: String)
 
 
 @Composable
@@ -55,7 +60,7 @@ fun MyAppNavHost(modifier: Modifier = Modifier,
         NavHost(modifier = modifier, navController = navController, startDestination = "menu") {
             composable("menu") {
                 Menu(
-                    Message("Movie Finding Game", "Jetpack Compose"),
+                    Message("Movie Finding Game"),
                     onNavigateToSearchMovies = { navController.navigate("searchmovies") },
                     onNavigateToRandomMovies = { navController.navigate("randommovies") },
                     onNavigateToSettings = { navController.navigate("settings") },
@@ -134,6 +139,7 @@ fun Credits() {
                 color = MaterialTheme.colorScheme.secondary,
                 text = "Coding - Charlie Baker"
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
                 textAlign = TextAlign.Center,
@@ -172,19 +178,14 @@ fun Menu(
 //        )
             Column {
                 Text(
+                    fontWeight = Bold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary,
                     text = msg.heading,
                 )
-                Text(
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    text = msg.body,
-                )
+                Spacer(modifier = Modifier.height(32.dp))
                 Column() {
                     Button(onClick = onNavigateToSearchMovies, modifier = Modifier.fillMaxWidth()) {
                         Text(text = "Play with specific movies")
@@ -218,7 +219,7 @@ fun PreviewMessageCard() {
     MovieAppTheme {
         Column {
             Menu(
-                msg = Message("Lexi", "Hey, take a look at Jetpack Compose, it's great!"),
+                msg = Message("Lexi"),
                 onNavigateToSearchMovies = {},
                 onNavigateToRandomMovies = {},
                 onNavigateToCredits = {},
