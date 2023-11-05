@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.movieapp.data.remote.Actor
 import com.example.movieapp.data.remote.Movie
 import com.example.movieapp.ui.MoviesViewModel
 
@@ -91,7 +92,10 @@ fun Game(
                             SearchActor(viewModel)
                         }
                         composable("actor") {
-                            ActorView()
+                            ActorView(
+                                    Actor(0, "", null),
+                                    onNavigateToMovie = { screenController.navigate("searchActor") }
+                                )
                         }
                     }
                 }
@@ -101,7 +105,7 @@ fun Game(
 }
 
 @Composable
-fun ActorView() {
+fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
     Scaffold() { innerPadding ->
         Box(
             contentAlignment = Alignment.Center,
@@ -119,6 +123,30 @@ fun ActorView() {
                         .aspectRatio(1F)
                         .clip(CircleShape)
                 )
+                if (actor.profileImageUrl != null) {
+                    AsyncImage(
+                        model = actor.profileImageUrl,
+                        null,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                    )
+                }
+                Text(
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                    text = actor.name
+                )
+
+                Button(onClick = onNavigateToMovie) {
+                    Text(text = "Next")
+                }
             }
         }
     }
