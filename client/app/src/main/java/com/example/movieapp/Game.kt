@@ -48,6 +48,8 @@ fun Game(
     val startMovie by viewModel.startMovie.collectAsState()
     val endMovie by viewModel.endMovie.collectAsState()
 
+    viewModel.movieList.add(startMovie)
+
     Scaffold() { innerPadding ->
         if (startMovie == null || endMovie == null) {
             Text(
@@ -87,22 +89,40 @@ fun Game(
                         startDestination = "movie"
                     ) {
                         composable("movie") {
-                            FilmView(
-                                movie = startMovie!!,
-                                onNavigateToActor = { screenController.navigate("searchActor") },
-                            )
+                            val movie = viewModel.movieList[viewModel.movieList.lastIndex]
+                            if (movie != null) {
+                                FilmView(
+                                    movie = movie,
+                                    onNavigateToActor = { screenController.navigate("searchActor") },
+                                )
+                            }
                         }
                         composable("searchActor") {
                             val actors by viewModel.actors.collectAsState()
                             SearchActor(
-                                actors,
+                                actors = actors,
                                 onQueryChanged = { query -> viewModel.searchActor(query) },
-                                onActorClicked = {})
+                                onActorClicked = { screenController.navigate("actor") },
+                                viewModel = viewModel,
+                            )
                         }
                         composable("actor") {
-                            ActorView(
-                                Actor(0, "", null),
-                                onNavigateToMovie = { screenController.navigate("searchActor") }
+                            val actor = viewModel.actorList[viewModel.actorList.lastIndex]
+//                                .collectAsState()
+                            if (actor != null) {
+                                ActorView(
+                                    actor = actor,
+                                    onNavigateToMovie = { screenController.navigate("searchMovie") }
+                                )
+                            }
+                        }
+                        composable("searchMovie") {
+                            val movies by viewModel.movies.collectAsState()
+                            SearchMovie(
+                                movies = movies,
+                                onQueryChanged = { query -> viewModel.searchMovie(query) },
+                                onMovieClicked = { screenController.navigate("movie") },
+                                viewModel = viewModel,
                             )
                         }
                     }
@@ -125,22 +145,27 @@ fun ActorView(actor: Actor, onNavigateToMovie: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
-                    .aspectRatio(1F)
-                    .clip(CircleShape)
-            )
-            if (actor.profileImageUrl != null) {
-                AsyncImage(
-                    model = actor.profileImageUrl,
-                    null,
-                    modifier = Modifier.fillMaxSize()
+                    .aspectRatio(2f / 3f)
+                    .clip(RoundedCornerShape(15.dp))
+//                    .fillMaxWidth(0.5f)
+//                    .aspectRatio(1F)
+//                    .clip(CircleShape)
+            ) {
+                if (actor.profileImageUrl != null) {
+                    AsyncImage(
+                        model = actor.profileImageUrl,
+                        null,
+                        modifier = Modifier.fillMaxSize()
                 )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                    )
+                }
             }
+
             Text(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -203,10 +228,65 @@ fun FilmView(movie: Movie, onNavigateToActor: () -> Unit) {
 }
 
 @Composable
+fun SearchMovie(
+    movies: List<Movie>,
+    onQueryChanged: (String) -> Unit,
+    onMovieClicked: (Movie) -> Unit,
+    viewModel: MoviesViewModel = hiltViewModel(),
+) {
+    var query by rememberSaveable { mutableStateOf("") }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            OutlinedTextField(singleLine = true, value = query, onValueChange = {
+                query = it
+                if (query.isNotEmpty()) {
+                    onQueryChanged(query)
+                }
+            })
+            Spacer(modifier = Modifier.padding(8.dp))
+            Box {
+                LazyColumn(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(
+                        if (query.isEmpty()) {
+                            0
+                        } else {
+                            movies.size
+                        }
+                    ) { movie ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            AsyncImage(
+                                model = movies[movie].posterImageUrl,
+                                contentDescription = null,
+                            )
+                            TextButton(
+                                content = { Text(movies[movie].title) },
+                                onClick = {
+                                    onMovieClicked(movies[movie]);
+                                    viewModel.movieList.add(movies[movie]) //TODO: Add Validation
+                                },
+                            )
+                        }
+                        Spacer(modifier = Modifier.padding(8.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun SearchActor(
     actors: List<Actor>,
     onQueryChanged: (String) -> Unit,
-    onActorClicked: (Actor) -> Unit
+    onActorClicked: (Actor) -> Unit,
+    viewModel: MoviesViewModel = hiltViewModel(),
 ) {
     var query by rememberSaveable { mutableStateOf("") }
 
@@ -241,7 +321,10 @@ fun SearchActor(
                             )
                             TextButton(
                                 content = { Text(actors[actor].name) },
-                                onClick = { onActorClicked(actors[actor]) },
+                                onClick = {
+                                    onActorClicked(actors[actor]);
+                                    viewModel.actorList.add(actors[actor]) //TODO: Add Validation
+                                },
                             )
                         }
                         Spacer(modifier = Modifier.padding(8.dp))

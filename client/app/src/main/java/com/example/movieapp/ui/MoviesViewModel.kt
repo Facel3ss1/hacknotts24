@@ -25,6 +25,9 @@ class MoviesViewModel @Inject constructor(private val client: MovieApi) : ViewMo
     private val _endMovie = MutableStateFlow<Movie?>(null)
     val endMovie: StateFlow<Movie?> = _endMovie
 
+    val movieList = mutableListOf<Movie?>(null)
+    val actorList = mutableListOf<Actor?>(null) // TODO: add getter/ setter
+
     init {
         chooseStartAndEndMovie()
     }
@@ -40,7 +43,7 @@ class MoviesViewModel @Inject constructor(private val client: MovieApi) : ViewMo
         }
     }
 
-    private fun searchMovie(query: String) {
+    fun searchMovie(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val fetchedMovies = client.searchMovie(query)
             _movies.emit(fetchedMovies)
