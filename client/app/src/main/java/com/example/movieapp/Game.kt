@@ -235,7 +235,7 @@ fun SearchMovie(
     viewModel: MoviesViewModel = hiltViewModel(),
 ) {
     var query by rememberSaveable { mutableStateOf("") }
-
+//
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -264,6 +264,7 @@ fun SearchMovie(
                             AsyncImage(
                                 model = movies[movie].posterImageUrl,
                                 contentDescription = null,
+                                modifier = Modifier.fillMaxSize(0.2F)
                             )
                             TextButton(
                                 content = { Text(movies[movie].title) },
